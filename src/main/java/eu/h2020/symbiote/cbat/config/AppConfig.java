@@ -12,9 +12,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoConfiguration;
+import org.springframework.data.mongodb.core.mapping.event.ValidatingMongoEventListener;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import java.util.Arrays;
 import org.bson.Document;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 
 /**
@@ -39,35 +41,31 @@ class AppConfig extends AbstractMongoConfiguration {
     @Value("${spring.data.mongodb.password}")
     private String password;
 
+    @Bean
+    public ValidatingMongoEventListener validatingMongoEventListener() {
+        return new ValidatingMongoEventListener(validator());
+    }
+
+    @Bean
+    public LocalValidatorFactoryBean validator() {
+        return new LocalValidatorFactoryBean();
+    }
+
+
     @Override
     public String getDatabaseName() {
         return database;
     }
 
-
-
     @Override
-    @Bean
     public Mongo mongo() throws Exception {
-        logger.info("#####################################33");
-        logger.info("host: "+host + "\n"+
-                    "database: "+database + "\n"+
-                    "username: "+username + "\n"+
-                    "password: "+password + "\n");
-        logger.info("#####################################33");
+
         MongoCredential credential = MongoCredential.createCredential(username,
                 database,
                 password.toCharArray());
-        MongoClient mongoClient = new MongoClient(new ServerAddress("localhost", 27017),
+
+        MongoClient mongoClient = new MongoClient(new ServerAddress(host, port),
                 Arrays.asList(credential));
-
-        MongoDatabase db = mongoClient.getDatabase(database);
-
-        MongoCollection<Document> collection = db.getCollection("names");
-        System.out.println("connecting to host....."+mongoClient);
-
-        System.out.println("connecting to database....."+collection.count());
-
 
         return mongoClient;
 
