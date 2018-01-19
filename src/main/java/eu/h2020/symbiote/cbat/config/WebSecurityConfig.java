@@ -15,9 +15,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
-
     /**
-     * TODO ~ remove -> disable security check
+     * TODO ~ remove this
      */
     @Override
     protected void configure(HttpSecurity http) throws Exception {

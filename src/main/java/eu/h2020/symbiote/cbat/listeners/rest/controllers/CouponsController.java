@@ -12,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-
 import java.util.Date;
 
 /**
@@ -31,19 +30,26 @@ public class CouponsController implements ICoupons {
 
     @ApiOperation(value = "Notify the core that a coupon has been created")
     @ApiResponses({
-            @ApiResponse(code = 404, message = "Invalid coupon!"),
+            @ApiResponse(code = 409, message = "Duplicated coupon!"),
+            @ApiResponse(code = 422, message = "Unprocessable coupon"),
+            @ApiResponse(code = 400, message = "Invalid coupon!"),
             @ApiResponse(code = 200, message = "success")})
     public ResponseEntity<Void> notifyCouponCreation(
             @RequestBody
             @ApiParam(value = "Request required coupon", required = true)
                 Coupon coupon) {
 
+        if(coupon.getId()==null || coupon.getId().isEmpty())
+            return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+
+        if (couponService.findById(coupon.getId())!=null)
+            return new ResponseEntity<Void>(HttpStatus.CONFLICT);
+
         if (couponService.createCoupon(coupon) != null ){
             return new ResponseEntity<Void>(HttpStatus.OK);
+        }else {
+            return new ResponseEntity<Void>(HttpStatus.UNPROCESSABLE_ENTITY);
         }
-
-        return new ResponseEntity<Void>(HttpStatus.NOT_FOUND);
-
     }
 
 
@@ -57,17 +63,16 @@ public class CouponsController implements ICoupons {
             @ApiParam(value = "Request required coupon", required = true)
                 Coupon coupon) {
 
-        Coupon c = couponService.findByIdentifier(coupon.getcIdentifier());
+        Coupon c = couponService.findById(coupon.getId());
 
         if ( c!= null ){
-            // if cannot be used
-            if ((c.isSingleUse() && c.getUsedByList().size()>0) || c.getExpirationDate().after(new Date())){
+            // TODO ~ add reason
+            if ((c.isSingleUse() && c.getUsedByList().size()>0) || c.getExpirationDate().before(new Date())){
                 return new ResponseEntity<Boolean>(false, null, HttpStatus.OK);
             }else{
                 return new ResponseEntity<Boolean>(true, null, HttpStatus.OK);
             }
         }
-
         return new ResponseEntity<Boolean>(false, null, HttpStatus.NOT_FOUND);
     }
 
@@ -86,10 +91,10 @@ public class CouponsController implements ICoupons {
             @ApiParam(value = "Request required user identifier", required = true)
                     String userIdentifier) {
 
-        Coupon c = couponService.findByIdentifier(coupon.getcIdentifier());
+        Coupon c = couponService.findById(coupon.getId());
         if ( c!= null ){
 
-            if ((c.isSingleUse() && c.getUsedByList().size()>0) || c.getExpirationDate().after(new Date())){
+            if ((c.isSingleUse() && c.getUsedByList().size()>0) || c.getExpirationDate().before(new Date())){
                 return new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
             }
             c.addToUsedByList(userIdentifier);
@@ -103,9 +108,9 @@ public class CouponsController implements ICoupons {
 
 
     public ResponseEntity<Coupon> couponUsageStatistic() {
-        Coupon c = couponService.findByIdentifier("1");
+//      Coupon c = couponService.findById("1");
 
-        return new ResponseEntity<Coupon>(c, null, HttpStatus.OK);
+        return new ResponseEntity<Coupon>(new Coupon(), null, HttpStatus.OK);
     }
 }
 
