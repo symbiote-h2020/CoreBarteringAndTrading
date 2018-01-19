@@ -23,11 +23,16 @@ public class CouponService {
     }
 
     public Coupon createCoupon(Coupon cupon){
-        return couponRepo.save(cupon);
+        try{
+            return couponRepo.save(cupon);
+        }catch (javax.validation.ConstraintViolationException ex){
+            return null;
+        }
+
     }
 
-    public Coupon findByIdentifier(String identifier){
-        return couponRepo.findByCIdentifier(identifier);
+    public Coupon findById(String id){
+        return couponRepo.findById(id);
     }
 
     public Coupon update(Coupon coupon){
