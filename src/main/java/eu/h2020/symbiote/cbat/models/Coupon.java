@@ -1,10 +1,8 @@
 package eu.h2020.symbiote.cbat.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import eu.h2020.symbiote.cbat.validation.NotEmpty;
 import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
-
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -23,7 +21,7 @@ public class Coupon {
      * coupon identifier
      */
     @Id
-    @NotEmpty
+    @NotBlank
     public String id;
 
     /**
@@ -35,7 +33,7 @@ public class Coupon {
     /**
      * (platformId): Who issued the coupon.
      */
-    @NotEmpty
+    @NotBlank
     private String issuer;
 
     /**
@@ -46,13 +44,13 @@ public class Coupon {
     /**
      * (federationId): The federation this coupon belongs to
      */
-    @NotEmpty
+    @NotBlank
     private String fedIdentifier;
 
     /**
      * Type of resources being bartered
      */
-    @NotEmpty
+    @NotBlank
     private String resourceType;
 
     /**
@@ -64,8 +62,8 @@ public class Coupon {
     /**
      * Boolean indicating if the coupon can be used only once, or several times
      */
-    @NotEmpty
-    private boolean singleUse;
+    @NotNull
+    private Boolean singleUse;
 
 
 
