@@ -1,7 +1,11 @@
 package eu.h2020.symbiote.cbat.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import eu.h2020.symbiote.cbat.validation.NotEmpty;
+import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.data.annotation.Id;
+
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -15,22 +19,23 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Coupon {
 
-    @Id
-    public String id;
-
     /**
      * coupon identifier
      */
-    private String cIdentifier;
+    @Id
+    @NotEmpty
+    public String id;
 
     /**
      * user history
      */
+    @NotNull
     private List<String> usedBy;
 
     /**
      * (platformId): Who issued the coupon.
      */
+    @NotEmpty
     private String issuer;
 
     /**
@@ -41,21 +46,25 @@ public class Coupon {
     /**
      * (federationId): The federation this coupon belongs to
      */
+    @NotEmpty
     private String fedIdentifier;
 
     /**
      * Type of resources being bartered
      */
+    @NotEmpty
     private String resourceType;
 
     /**
      * Expiry date of the coupon
      */
+    @NotNull
     private Date expirationDate;
 
     /**
      * Boolean indicating if the coupon can be used only once, or several times
      */
+    @NotEmpty
     private boolean singleUse;
 
 
@@ -79,17 +88,18 @@ public class Coupon {
 
     public void setResourceType(String resourceType) { this.resourceType = resourceType; }
 
-    public Date getExpirationDate() { return expirationDate; }
+    public Date getExpirationDate() {
+        if (expirationDate == null) {
+            expirationDate = new Date(0);
+        }
+        return expirationDate;
+    }
 
     public void setExpirationDate(Date expirationDate) { this.expirationDate = expirationDate; }
 
     public boolean isSingleUse() { return singleUse; }
 
     public void setSingleUse(boolean singleUse) { this.singleUse = singleUse; }
-
-    public String getcIdentifier() { return cIdentifier; }
-
-    public void setcIdentifier(String cIdentifier) { this.cIdentifier = cIdentifier; }
 
     public List<String> getUsedByList() {
         if(usedBy == null){
